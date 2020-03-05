@@ -1,5 +1,27 @@
 import tkinter as tk
 from tkinter import font  as tkfont
+from tkinter import ttk
+
+class ScrollableFrame(tk.Frame):
+    def __init__(self, container, *args, **kwargs):
+        super().__init__(container, *args, **kwargs)
+        canvas = tk.Canvas(self)
+        scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
+        self.scrollable_frame = ttk.Frame(canvas)
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
 
 
 class SampleApp(tk.Tk):
@@ -9,7 +31,7 @@ class SampleApp(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
 
         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
-        self.geometry('800x350')
+        self.geometry('800x270')
 
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
@@ -42,7 +64,7 @@ class StartPage(tk.Frame):
 
         button1 = tk.Button(self, text="Создать запись",
                             command=lambda: controller.show_frame("PageOne"))
-        button2 = tk.Button(self, text="Записи",
+        button2 = tk.Button(self, text="Записи и поиск",
                             command=lambda: controller.show_frame("PageTwo"))
         button3 = tk.Button(self, text="Редактировать запись",
                             command=lambda: controller.show_frame("PageThree"))
@@ -132,31 +154,45 @@ class PageTwo(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        def to_take(self):
+        frame1 = ScrollableFrame(self)
+
+        label1 = tk.Label(self, text="Записи и поиск:", font=controller.title_font)
+        label1.pack(side="top", fill="x", pady=10)
+        label1.place(x=0, y=50)
+        button1 = tk.Button(self, text="Назад",
+                           command=lambda: controller.show_frame("StartPage"))
+
+        button1.pack(side="bottom")
+        button1.place(x=40, y=200)
+
+
+
+        frame1.pack(side="bottom", fill="x")
+        frame1.place(x=180, y=50, width=600)
+        entry = tk.Entry(self, width=55,)
+        entry.pack()
+        entry.place(x=180, y=10)
+        def search(event):
             import sqlite3
+            a = entry.get()
 
             conn = sqlite3.connect("DBforPhonebook")
             cursor = conn.cursor()
+            for widget in frame1.scrollable_frame.winfo_children():
+                widget.destroy()
+            for row in cursor.execute('SELECT * FROM list WHERE Фамилия LIKE ?;', ('%'+a+'%',)):
+                buf = tk.Label(frame1.scrollable_frame,
+                               text=row[1] + " " + row[2] + " " + row[3] + ": " + str(row[4]) + " " + row[5],
+                               font=controller.title_font)
+                buf.pack()
+        button2 = tk.Button(self, text="Поиск по фамилии/Вывод")
+        button2.pack()
+        button2.place(x=5, y=150)
+        button2.bind('<Button-1>', search)
 
-            for row in cursor.execute('SELECT * FROM list'):
-                print(row)
-
-        label1 = tk.Label(self, text="Записи:", font=controller.title_font)
-        label1.pack(side="top", fill="x", pady=10)
-        label1.place(x=30, y=30)
-        button1 = tk.Button(self, text="Назад",
-                           command=lambda: controller.show_frame("StartPage"))
-        button2 = tk.Button(self, text="Вывести")
-
-        label2 = tk.Label(self, bg='gray', fg='yellow', width=50, height=15)
+        label2 = tk.Label(self, text="Строка поиска:", font=controller.title_font)
         label2.pack()
-        label2.place(x=150, y=10)
-        button1.pack(side="bottom")
-        button1.place(x=40, y=200)
-        button2.pack(side="bottom")
-        button2.place(x=35, y=150)
-        button2.bind('<Button-1>', to_take)
-
+        label2.place(x=0, y=10)
 
 class PageThree(tk.Frame):
 
@@ -200,6 +236,7 @@ class PageFive(tk.Frame):
         button1.pack()
         button2.pack()
         button2.bind('<Button-1>', quit)
+
 
 if __name__ == "__main__":
     app = SampleApp()
