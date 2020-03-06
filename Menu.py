@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import font  as tkfont
 from tkinter import ttk
 
+
 class ScrollableFrame(tk.Frame):
     def __init__(self, container, *args, **kwargs):
         super().__init__(container, *args, **kwargs)
@@ -25,7 +26,6 @@ class ScrollableFrame(tk.Frame):
 
 
 class SampleApp(tk.Tk):
-
 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -79,8 +79,6 @@ class StartPage(tk.Frame):
         button5.pack()
 
 
-
-
 class PageOne(tk.Frame):
 
     def __init__(self, parent, controller):
@@ -94,7 +92,7 @@ class PageOne(tk.Frame):
         label2.place(x=30, y=60)
         label3 = tk.Label(self, text="*Отчество:", font=controller.title_font)
         label3.pack(side="left", fill="x", pady=0, padx=0)
-        label3.place(x=30,y=90)
+        label3.place(x=30, y=90)
         label4 = tk.Label(self, text="*Номер телефона:", font=controller.title_font)
         label4.pack(side="left", fill="x", pady=0, padx=0)
         label4.place(x=30, y=120)
@@ -106,6 +104,7 @@ class PageOne(tk.Frame):
         label6.place(x=150, y=0)
         button = tk.Button(self, text="Назад",
                            command=lambda: controller.show_frame("StartPage"))
+
         def save(self):
             import sqlite3
             conn = sqlite3.connect("DBforPhonebook")
@@ -113,7 +112,7 @@ class PageOne(tk.Frame):
             surname = e1.get()
             name = e2.get()
             patronymic = e3.get()
-            phonenum = e4.get()
+            phonenum = int(e4.get())
             comment = e5.get()
 
             cursor.execute('''INSERT INTO list(Фамилия, Имя, Отчество, Номер, Комментарий) VALUES(?,?,?,?,?)''',
@@ -146,9 +145,6 @@ class PageOne(tk.Frame):
         e5.place(x=200, y=150)
 
 
-
-
-
 class PageTwo(tk.Frame):
 
     def __init__(self, parent, controller):
@@ -160,18 +156,17 @@ class PageTwo(tk.Frame):
         label1.pack(side="top", fill="x", pady=10)
         label1.place(x=0, y=50)
         button1 = tk.Button(self, text="Назад",
-                           command=lambda: controller.show_frame("StartPage"))
+                            command=lambda: controller.show_frame("StartPage"))
 
         button1.pack(side="bottom")
         button1.place(x=40, y=200)
 
-
-
         frame1.pack(side="bottom", fill="x")
         frame1.place(x=180, y=50, width=600)
-        entry = tk.Entry(self, width=55,)
+        entry = tk.Entry(self, width=55, )
         entry.pack()
         entry.place(x=180, y=10)
+
         def search(event):
             import sqlite3
             a = entry.get()
@@ -180,11 +175,12 @@ class PageTwo(tk.Frame):
             cursor = conn.cursor()
             for widget in frame1.scrollable_frame.winfo_children():
                 widget.destroy()
-            for row in cursor.execute('SELECT * FROM list WHERE Фамилия LIKE ?;', ('%'+a+'%',)):
+            for row in cursor.execute('SELECT * FROM list WHERE Фамилия LIKE ?;', ('%' + a + '%',)):
                 buf = tk.Label(frame1.scrollable_frame,
                                text=row,
                                font=controller.title_font)
                 buf.pack()
+
         button2 = tk.Button(self, text="Поиск по фамилии/Вывод")
         button2.pack()
         button2.place(x=5, y=150)
@@ -193,6 +189,7 @@ class PageTwo(tk.Frame):
         label2 = tk.Label(self, text="Строка поиска:", font=controller.title_font)
         label2.pack()
         label2.place(x=0, y=10)
+
 
 class PageThree(tk.Frame):
 
@@ -224,10 +221,6 @@ class PageThree(tk.Frame):
                                (surname, name, patronymic, phonenum, comment, a,))
                 conn.commit()
 
-
-
-
-
         label1 = tk.Label(self, text="*Фамилия:", font=controller.title_font)
         label1.pack(side="left", fill="x", pady=0, padx=0)
         label1.place(x=300, y=90)
@@ -250,7 +243,6 @@ class PageThree(tk.Frame):
         e4 = tk.Entry(self)
         e5 = tk.Entry(self)
 
-
         e1.pack(side="right")
         e1.place(x=500, y=90)
         e2.pack(side="right")
@@ -261,8 +253,6 @@ class PageThree(tk.Frame):
         e4.place(x=500, y=180)
         e5.pack(side="right")
         e5.place(x=500, y=210)
-
-
 
         button2 = tk.Button(self, text="Редактировать")
         button2.pack()
@@ -282,22 +272,40 @@ class PageThree(tk.Frame):
         label2.place(x=400, y=50)
 
 
-
-
-
 class PageFour(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        label1 = tk.Label(self, text="This is page 4", font=controller.title_font)
+        label1 = tk.Label(self, text="Удаление", font=controller.title_font)
         label1.pack(side="top", fill="x", pady=10)
-        button1 = tk.Button(self, text="Go to the start page",
-                           command=lambda: controller.show_frame("StartPage"))
+        button1 = tk.Button(self, text="Назад",
+                            command=lambda: controller.show_frame("StartPage"))
         button1.pack()
+        button1.place(x=350, y=100)
+        from tkinter import messagebox as mb
 
+        def check(event):
+            answer = mb.askyesno(title="Вопрос", message="Вы действительно хотите удалить контакт с данным  ID?")
+            if answer == True:
+                import sqlite3
+                conn = sqlite3.connect("DBforPhonebook")
+                cursor = conn.cursor()
+                a = entry.get()
 
+                cursor.execute('''DELETE FROM list WHERE ID=?''', a)
+                conn.commit()
 
+        entry = tk.Entry(self, width=3)
+        entry.pack()
+        entry.place(x=50, y=50)
+        button2 = tk.Button(self, text="Удалить")
+        button2.pack()
+        button2.place(x=250, y=100)
+        button2.bind('<Button-1>', check)
+        label2 = tk.Label(self, text="Укажите ID контакта,который хотите удалить", font=controller.title_font)
+        label2.pack()
+        label2.place(x=100, y=50)
 
 
 class PageFive(tk.Frame):
@@ -308,14 +316,15 @@ class PageFive(tk.Frame):
         label = tk.Label(self, text="Уверенны,что хотите выйти?", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
         button1 = tk.Button(self, text="Назад",
-                           command=lambda: controller.show_frame("StartPage"))
+                            command=lambda: controller.show_frame("StartPage"))
+
         def quit(event):
             self.quit()
 
         button2 = tk.Button(self, text="Выход")
-        button1.pack(side = "right")
+        button1.pack(side="right")
         button1.place(x=0, y=0)
-        button2.pack(side = "right")
+        button2.pack(side="right")
         button2.place(x=1000, y=1000)
         button1.pack()
         button2.pack()
