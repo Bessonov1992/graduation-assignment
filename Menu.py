@@ -104,7 +104,7 @@ class PageOne(tk.Frame):
         label6 = tk.Label(self, text="Создать контакт", font=controller.title_font)
         label6.pack(side="top", fill="x", pady=0, padx=0)
         label6.place(x=150, y=0)
-        button = tk.Button(self, text="Отмена",
+        button = tk.Button(self, text="Назад",
                            command=lambda: controller.show_frame("StartPage"))
         def save(self):
             import sqlite3
@@ -182,7 +182,7 @@ class PageTwo(tk.Frame):
                 widget.destroy()
             for row in cursor.execute('SELECT * FROM list WHERE Фамилия LIKE ?;', ('%'+a+'%',)):
                 buf = tk.Label(frame1.scrollable_frame,
-                               text=row[1] + " " + row[2] + " " + row[3] + ": " + str(row[4]) + " " + row[5],
+                               text=row,
                                font=controller.title_font)
                 buf.pack()
         button2 = tk.Button(self, text="Поиск по фамилии/Вывод")
@@ -199,22 +199,106 @@ class PageThree(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        label = tk.Label(self, text="This is page 3", font=controller.title_font)
+        label = tk.Label(self, text="Редактор:", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
-        button = tk.Button(self, text="Go to the start page",
+        button = tk.Button(self, text="Назад",
                            command=lambda: controller.show_frame("StartPage"))
-        button.pack()
+        button.place(x=10, y=400)
+        button.pack(side="bottom")
+        from tkinter import messagebox as mb
+
+        def check(event):
+            answer = mb.askyesno(title="Вопрос", message="Cохранить данные?")
+            if answer == True:
+                import sqlite3
+                conn = sqlite3.connect("DBforPhonebook")
+                cursor = conn.cursor()
+                a = entry1.get()
+                surname = e1.get()
+                name = e2.get()
+                patronymic = e3.get()
+                phonenum = e4.get()
+                comment = e5.get()
+
+                cursor.execute('''UPDATE list SET Фамилия=?, Имя=?, Отчество=?,Номер=?, Комментарий=? WHERE ID=?;''',
+                               (surname, name, patronymic, phonenum, comment, a,))
+                conn.commit()
+
+
+
+
+
+        label1 = tk.Label(self, text="*Фамилия:", font=controller.title_font)
+        label1.pack(side="left", fill="x", pady=0, padx=0)
+        label1.place(x=300, y=90)
+        label2 = tk.Label(self, text="*Имя:", font=controller.title_font)
+        label2.pack(side="left", fill="x", pady=0, padx=0)
+        label2.place(x=300, y=120)
+        label3 = tk.Label(self, text="*Отчество:", font=controller.title_font)
+        label3.pack(side="left", fill="x", pady=0, padx=0)
+        label3.place(x=300, y=150)
+        label4 = tk.Label(self, text="*Номер телефона:", font=controller.title_font)
+        label4.pack(side="left", fill="x", pady=0, padx=0)
+        label4.place(x=300, y=180)
+        label5 = tk.Label(self, text="Комментарий", font=controller.title_font)
+        label5.pack(side="left", fill="x", pady=0, padx=0)
+        label5.place(x=300, y=210)
+
+        e1 = tk.Entry(self)
+        e2 = tk.Entry(self)
+        e3 = tk.Entry(self)
+        e4 = tk.Entry(self)
+        e5 = tk.Entry(self)
+
+
+        e1.pack(side="right")
+        e1.place(x=500, y=90)
+        e2.pack(side="right")
+        e2.place(x=500, y=120)
+        e3.pack(side="right")
+        e3.place(x=500, y=150)
+        e4.pack(side="right")
+        e4.place(x=500, y=180)
+        e5.pack(side="right")
+        e5.place(x=500, y=210)
+
+
+
+        button2 = tk.Button(self, text="Редактировать")
+        button2.pack()
+        button2.place(x=250, y=249)
+        button2.bind('<Button-1>', check)
+
+        entry1 = tk.Entry(self, width=3)
+        entry1.pack()
+        entry1.place(x=200, y=45)
+
+        label1 = tk.Label(self, text="Введите ID изменяемого:")
+        label1.pack()
+        label1.place(x=10, y=50)
+
+        label2 = tk.Label(self, text="Внесите изменения:")
+        label2.pack()
+        label2.place(x=400, y=50)
+
+
+
+
 
 class PageFour(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        label = tk.Label(self, text="This is page 4", font=controller.title_font)
-        label.pack(side="top", fill="x", pady=10)
-        button = tk.Button(self, text="Go to the start page",
+        label1 = tk.Label(self, text="This is page 4", font=controller.title_font)
+        label1.pack(side="top", fill="x", pady=10)
+        button1 = tk.Button(self, text="Go to the start page",
                            command=lambda: controller.show_frame("StartPage"))
-        button.pack()
+        button1.pack()
+
+
+
+
 
 class PageFive(tk.Frame):
 
